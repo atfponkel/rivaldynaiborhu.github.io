@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akuisisi Board — Performa Pegawai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="data.js"></script>
+<style>
+:root{
+  --bg:#0F1B2B;
+  --surface:#162A41;
+  --surface-2:#1D3450;
+  --line:#2A4360;
+  --gold:#D4A24C;
+  --gold-soft:#caa55c33;
+  --green:#3FB68B;
+  --red:#E2574C;
+  --text:#E8EDF4;
+  --muted:#8FA1B8;
+  --muted-dim:#5E7188;
+  --font-display:'Fraunces', serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse 800px 500px at 10% -10%, #1c3a5a55, transparent),
+    radial-gradient(ellipse 600px 400px at 100% 0%, #2a4d3a33, transparent);
+}
+::selection{ background:var(--gold-soft); }
+button{ font-family:inherit; cursor:pointer; border:none; }
+input{ font-family:inherit; }
+
+/* ===== LOGIN ===== */
+#login-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  position:relative;
+  background-image:url('login-bg.png');
+  background-size:cover;
+  background-position:center;
+}
+#login-screen::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 620px 700px at 50% 50%, #0F1B2Be8 0%, #0F1B2Bb0 45%, #0F1B2B55 70%, #0F1B2B22 100%),
+    linear-gradient(0deg, #0F1B2Bb0 0%, transparent 30%);
+}
+.login-card{
+  width:100%;
+  max-width:420px;
+  background:linear-gradient(180deg, #16294266, #14233a55);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid #3a5475;
+  border-radius:18px;
+  padding:42px 36px 36px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 30px 70px -20px #000000a0;
+  z-index:1;
+}
+.login-card::before{
+  content:"";
+  position:absolute; top:-1px; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.login-eyebrow{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.18em;
+  color:var(--gold);
+  text-transform:uppercase;
+  display:flex; align-items:center; gap:8px;
+}
+.login-eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); }
+.login-title{
+  font-family:var(--font-display);
+  font-size:32px;
+  font-weight:600;
+  margin-top:14px;
+  line-height:1.15;
+}
+.login-sub{ color:var(--muted); font-size:14px; margin-top:10px; line-height:1.6; }
+.login-form{ margin-top:30px; }
+.field-label{ font-size:12px; color:var(--muted); margin-bottom:8px; display:block; letter-spacing:.02em; }
+.nip-input{
+  width:100%;
+  background:#0F1C2D;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:15px 16px;
+  color:var(--text);
+  font-family:var(--font-mono);
+  font-size:16px;
+  letter-spacing:.03em;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.nip-input:focus{ border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft); }
+.login-btn{
+  width:100%;
+  margin-top:18px;
+  background:var(--gold);
+  color:#1c1305;
+  font-weight:700;
+  font-size:14px;
+  padding:14px;
+  border-radius:10px;
+  letter-spacing:.02em;
+  transition:transform .15s, filter .15s;
+}
+.login-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+.login-btn:active{ transform:translateY(0); }
+.login-error{
+  margin-top:14px;
+  font-size:13px;
+  color:var(--red);
+  background:#e2574c1a;
+  border:1px solid #e2574c44;
+  border-radius:8px;
+  padding:10px 12px;
+  display:none;
+}
+.login-error.show{ display:block; }
+.login-foot{
+  margin-top:26px;
+  font-size:11.5px;
+  color:var(--muted-dim);
+  border-top:1px solid var(--line);
+  padding-top:16px;
+  display:flex;
+  justify-content:space-between;
+}
+
+/* ===== HEADER TANGGAL ===== */
+.date-header{
+  background:linear-gradient(90deg, #0c1829, #112238);
+  border-bottom:1px solid var(--line);
+  padding:9px 28px;
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12px; color:var(--muted);
+}
+.date-header .dh-left{ display:flex; align-items:center; gap:20px; }
+.date-header .dh-item{ display:flex; align-items:center; gap:6px; }
+.date-header .dh-label{ color:var(--muted-dim); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; }
+.date-header .dh-value{ font-family:var(--font-mono); color:var(--text); font-size:12px; }
+.date-header .dh-sep{ width:1px; height:14px; background:var(--line); }
+.date-header .dh-right{ font-family:var(--font-mono); font-size:11px; color:var(--muted-dim); }
+
+/* ===== APP SHELL ===== */
+#app{ display:none; min-height:100vh; }
+.topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:#0F1B2Bee;
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{ display:flex; align-items:center; gap:10px; }
+.brand-mark{
+  width:32px; height:32px; border-radius:8px;
+  background:linear-gradient(135deg, var(--gold), #8a672b);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:700; color:#1c1305; font-size:16px;
+}
+.brand-name{ font-family:var(--font-display); font-size:18px; font-weight:600; }
+.topbar-right{ display:flex; align-items:center; gap:16px; }
+.user-pill{
+  font-family:var(--font-mono); font-size:12.5px; color:var(--muted);
+  background:var(--surface); border:1px solid var(--line);
+  padding:8px 14px; border-radius:999px;
+}
+.user-pill b{ color:var(--text); }
+.logout-btn{
+  background:transparent; border:1px solid var(--line); color:var(--muted);
+  padding:8px 14px; border-radius:999px; font-size:12.5px;
+  transition:.2s;
+}
+.logout-btn:hover{ border-color:var(--red); color:var(--red); }
+
+.main{ padding:28px; max-width:1280px; margin:0 auto; }
+
+/* ===== STATS ===== */
+.stats-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:26px; }
+.stat-card{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px; }
+.stat-label{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+.stat-value{ font-family:var(--font-display); font-size:26px; margin-top:6px; }
+.stat-value.gold{ color:var(--gold); }
+
+/* ===== PODIUM ===== */
+.podium-section{ margin-bottom:26px; }
+.podium-section-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.podium-section-title{ font-family:var(--font-display); font-size:18px; }
+.podium-tabs{ display:flex; gap:8px; }
+.podium-tab{
+  background:var(--surface); border:1px solid var(--line); color:var(--muted);
+  padding:8px 18px; border-radius:999px; font-size:12.5px; font-weight:600;
+  transition:.15s;
+}
+.podium-tab:hover{ color:var(--text); border-color:var(--gold-soft); }
+.podium-tab.active{ background:var(--gold); color:#1c1305; border-color:var(--gold); }
+.podium-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.podium-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  padding:20px 18px 18px; position:relative; overflow:hidden; cursor:pointer;
+  transition:transform .15s, border-color .15s;
+}
+.podium-card:hover{ transform:translateY(-2px); border-color:var(--gold-soft); }
+.podium-card.rank-1{ border-color:#D4A24C66; background:linear-gradient(160deg, #2a241244, var(--surface) 60%); }
+.podium-card.rank-2{ border-color:#C7CDD644; }
+.podium-card.rank-3{ border-color:#C1754344; }
+.podium-top{ display:flex; align-items:center; gap:10px; }
+.podium-medal{
+  width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.podium-card.rank-1 .podium-medal{ background:#D4A24C22; }
+.podium-card.rank-2 .podium-medal{ background:#C7CDD622; }
+.podium-card.rank-3 .podium-medal{ background:#C1754322; }
+.podium-name{ font-family:var(--font-display); font-size:16px; line-height:1.25; }
+.podium-nip{ font-family:var(--font-mono); font-size:10.5px; color:var(--muted); margin-top:1px; }
+.podium-unit{ font-size:11px; color:var(--muted-dim); margin-top:6px; border-top:1px solid var(--line); padding-top:8px; }
+.podium-metrics{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-top:10px; }
+.podium-metric{ background:var(--surface-2); border-radius:8px; padding:8px 10px; }
+.podium-metric-label{ font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+.podium-metric-value{ font-family:var(--font-mono); font-size:13px; margin-top:3px; }
+.podium-metric-value.gold{ color:var(--gold); }
+.podium-empty{ grid-column:1/-1; color:var(--muted); font-size:13px; padding:18px; text-align:center; }
+
+/* ===== TOOLBAR & TABLE ===== */
+.toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+.search-wrap{ position:relative; flex:1; min-width:200px; }
+.search-input{
+  width:100%; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  padding:11px 14px 11px 36px; color:var(--text); font-size:13.5px; outline:none;
+  transition:border-color .15s;
+}
+.search-input:focus{ border-color:var(--gold); }
+.search-icon{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted-dim); font-size:15px; }
+.result-count{ font-size:12px; color:var(--muted); font-family:var(--font-mono); white-space:nowrap; }
+
+.table-wrap{ background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+.table-scroll{ overflow:auto; max-height:60vh; }
+table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+thead th{
+  text-align:left; padding:12px 14px; font-size:10.5px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid var(--line);
+  background:var(--surface-2); position:sticky; top:0; z-index:2; font-weight:600;
+  white-space:nowrap;
+}
+thead th.num{ text-align:right; }
+tbody td{ padding:12px 14px; border-bottom:1px solid #21354e; }
+tbody tr{ cursor:pointer; transition:background .12s; }
+tbody tr:hover{ background:#1c3148; }
+tbody tr:last-child td{ border-bottom:none; }
+.nip-cell{ font-family:var(--font-mono); color:var(--muted); font-size:12.5px; }
+.rank-cell{ font-family:var(--font-mono); font-weight:700; font-size:13px; text-align:center; }
+.rank-cell.r1{ color:#D4A24C; }
+.rank-cell.r2{ color:#C7CDD6; }
+.rank-cell.r3{ color:#C17A45; }
+.tag{
+  font-size:10.5px; font-family:var(--font-mono); padding:3px 8px; border-radius:5px; display:inline-block;
+}
+.tag-y{ background:#3fb68b22; color:var(--green); border:1px solid #3fb68b44; }
+.tag-n{ background:#5e718822; color:var(--muted); border:1px solid #5e718844; }
+.num{ font-family:var(--font-mono); text-align:right; }
+.pagination{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:14px; border-top:1px solid var(--line);
+}
+.page-btn{
+  background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+  width:32px; height:32px; border-radius:7px; font-size:13px;
+}
+.page-btn:disabled{ opacity:.35; cursor:not-allowed; }
+.page-info{ font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+.empty-state{ text-align:center; padding:60px 20px; color:var(--muted); }
+.empty-state .big{ font-family:var(--font-display); font-size:22px; color:var(--text); margin-bottom:8px; }
+
+/* ===== DETAIL MODAL ===== */
+#overlay{
+  position:fixed; inset:0; background:#050a12cc; backdrop-filter:blur(4px);
+  display:none; align-items:flex-start; justify-content:center;
+  z-index:50; padding:40px 20px; overflow-y:auto;
+}
+#overlay.show{ display:flex; }
+.detail-panel{
+  width:100%; max-width:780px;
+  background:linear-gradient(180deg, var(--surface), #122036);
+  border:1px solid var(--line); border-radius:18px;
+  padding:32px; position:relative;
+  animation:rise .25s ease;
+}
+@keyframes rise{ from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+.close-btn{
+  position:absolute; top:20px; right:20px;
+  width:34px; height:34px; border-radius:9px;
+  background:var(--surface-2); border:1px solid var(--line); color:var(--muted);
+  font-size:16px; display:flex; align-items:center; justify-content:center;
+}
+.close-btn:hover{ color:var(--text); border-color:var(--gold); }
+.detail-head{ padding-right:50px; }
+.detail-eyebrow{ font-family:var(--font-mono); font-size:11px; color:var(--gold); letter-spacing:.1em; }
+.detail-name{ font-family:var(--font-display); font-size:28px; margin-top:6px; }
+.detail-unit{ color:var(--muted); font-size:13.5px; margin-top:4px; }
+.status-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.status-banner{
+  display:flex; align-items:center; gap:14px;
+  padding:16px 18px; border-radius:12px; border:1px solid var(--line);
+}
+.status-banner.ok{ background:#3fb68b14; border-color:#3fb68b44; }
+.status-banner.bad{ background:#e2574c14; border-color:#e2574c44; }
+.status-icon{
+  width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; flex-shrink:0;
+}
+.status-icon.ok{ background:var(--green); color:#0a2419; }
+.status-icon.bad{ background:var(--red); color:#2b0a07; }
+.status-text .t1{ font-size:13.5px; font-weight:600; }
+.status-text .t2{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+.rank-section-title{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:26px 0 14px; }
+.rank-rings{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.rank-card{ background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:18px 14px; text-align:center; }
+.ring-wrap{ position:relative; width:88px; height:88px; margin:0 auto; }
+.ring-wrap svg{ transform:rotate(-90deg); }
+.ring-bg{ fill:none; stroke:#2A4360; stroke-width:7; }
+.ring-fg{ fill:none; stroke:var(--gold); stroke-width:7; stroke-linecap:round; transition:stroke-dashoffset 1s ease; }
+.ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-rank{ font-family:var(--font-mono); font-weight:700; font-size:16px; }
+.ring-of{ font-size:9px; color:var(--muted); }
+.rank-card-label{ font-size:11.5px; color:var(--muted); margin-top:10px; line-height:1.4; }
+.rank-card-pct{ font-family:var(--font-mono); font-size:11px; color:var(--gold); margin-top:4px; }
+.metrics-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:24px; }
+.metric-box{ background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:13px 14px; }
+.metric-box .ml{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+.metric-box .mv{ font-family:var(--font-mono); font-size:16px; margin-top:5px; }
+
+/* ===== CONFIRM DIALOG ===== */
+#confirm-overlay{
+  position:fixed; inset:0; background:#050a12dd; backdrop-filter:blur(6px);
+  display:none; align-items:center; justify-content:center;
+  z-index:100; padding:24px;
+}
+#confirm-overlay.show{ display:flex; }
+.confirm-box{
+  background:linear-gradient(180deg, var(--surface), #122036);
+  border:1px solid var(--line); border-radius:16px;
+  padding:32px 28px; max-width:380px; width:100%; text-align:center;
+  animation:rise .2s ease;
+}
+.confirm-icon{ font-size:36px; margin-bottom:14px; }
+.confirm-title{ font-family:var(--font-display); font-size:22px; margin-bottom:8px; }
+.confirm-sub{ color:var(--muted); font-size:13.5px; line-height:1.6; margin-bottom:24px; }
+.confirm-actions{ display:flex; gap:10px; justify-content:center; }
+.confirm-cancel{
+  background:var(--surface-2); border:1px solid var(--line); color:var(--text);
+  padding:11px 24px; border-radius:10px; font-size:14px; font-weight:600;
+  transition:.15s;
+}
+.confirm-cancel:hover{ border-color:var(--muted); }
+.confirm-ok{
+  background:var(--red); color:#fff;
+  padding:11px 24px; border-radius:10px; font-size:14px; font-weight:700;
+  transition:.15s; border:none;
+}
+.confirm-ok:hover{ filter:brightness(1.1); }
+
+@media(max-width:720px){
+  .stats-row{ grid-template-columns:repeat(2,1fr); }
+  .podium-grid{ grid-template-columns:1fr; }
+  .rank-rings{ grid-template-columns:1fr; }
+  .metrics-grid{ grid-template-columns:repeat(2,1fr); }
+  .status-row{ grid-template-columns:1fr; }
+  .date-header .dh-right{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow"><span class="dot"></span>Dashboard GMM - V2.0</div>
+    <div class="login-title">Masuk dengan<br>NIP Anda</div>
+    <div class="login-sub">Akses dashboard performa akuisisi hanya untuk pegawai yang terdaftar pada cakupan area.</div>
+    <div class="login-form">
+      <label class="field-label" for="nip-input">Nomor Induk Pegawai</label>
+      <input id="nip-input" class="nip-input" type="text" inputmode="numeric" placeholder="Contoh: 70144118" autocomplete="off">
+      <button class="login-btn" id="login-btn">Masuk Dashboard</button>
+      <div class="login-error" id="login-error"></div>
+    </div>
+    <div class="login-foot">
+      <span id="total-pegawai-foot">Memuat data...</span>
+      <span id="eligible-foot"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+
+  <!-- Header tanggal & periode — edit nilai CONFIG di bagian JS -->
+  <div class="date-header" id="date-header">
+    <div class="dh-left">
+      <div class="dh-item">
+        <span class="dh-label">Per Tanggal</span>
+        <span class="dh-value" id="hdr-tanggal"></span>
+      </div>
+      <div class="dh-sep"></div>
+      <div class="dh-item">
+        <span class="dh-label">Periode</span>
+        <span class="dh-value" id="hdr-periode"></span>
+      </div>
+    </div>
+    <div class="dh-right" id="hdr-update"></div>
+  </div>
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div class="brand-name">Akuisisi Board</div>
+    </div>
+    <div class="topbar-right">
+      <div class="user-pill">NIP <b id="cur-nip-pill"></b></div>
+      <button class="logout-btn" id="logout-btn">Keluar</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="podium-section">
+      <div class="podium-section-header">
+        <div class="podium-section-title">🏆 Top 3 Akuisisi</div>
+        <div class="podium-tabs" id="podium-tabs">
+          <button class="podium-tab active" data-scope="all">Nasional</button>
+          <button class="podium-tab" data-scope="region">Region</button>
+          <button class="podium-tab" data-scope="area">Area</button>
+        </div>
+      </div>
+      <div class="podium-grid" id="podium-grid"></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input class="search-input" id="search-nip" placeholder="Cari NIP atau nama pegawai…">
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon">🏢</span>
+        <input class="search-input" id="search-unit" placeholder="Cari unit kerja…">
+      </div>
+      <div class="result-count" id="result-count"></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:center">Rank</th>
+              <th>NIP</th>
+              <th>Nama</th>
+              <th>Unit Kerja</th>
+              <th class="num">Akuisisi</th>
+              <th class="num">% Akuisisi</th>
+              <th class="num">Saldo (jt)</th>
+              <th class="num">Avg Saldo (jt)</th>
+              <th>Region</th>
+              <th>Area</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div id="empty-state-wrap"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DETAIL MODAL ===== -->
+<div id="overlay">
+  <div class="detail-panel">
+    <button class="close-btn" id="close-detail">✕</button>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- ===== LOGOUT CONFIRM ===== -->
+<div id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🚪</div>
+    <div class="confirm-title">Keluar dari Dashboard?</div>
+    <div class="confirm-sub">Sesi Anda akan diakhiri dan Anda perlu login kembali menggunakan NIP untuk mengakses dashboard.</div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" id="confirm-cancel">Batal</button>
+      <button class="confirm-ok" id="confirm-ok">Ya, Keluar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// ⚙️  KONFIGURASI — Edit nilai di sini setiap kali data diperbarui
+// =====================================================================
+const CONFIG = {
+  TANGGAL  : '30 Juni 2026',          // Tanggal data per-hari
+  PERIODE  : 'Juni - September 2026',             // Periode laporan
+  LAST_UPDATE: 'Data diperbarui: 2 Jul 2026 09.02 WIB',
+};
+// =====================================================================
+
+// Column index map (0-based)
+const COL = {
+  UNIT:0, NIP:1, NAMA:2, AKUISISI:3, PCT_AKUISISI:4, SETOR:5, PCT_SETOR:6,
+  TRANSAKSI:7, PCT_TRANSAKSI:8, FREK:9, SV:10, SALDO:11, RATA:12, REGION:13, AREA:14
+};
+
+// Pre-sort DATA by akuisisi desc once (mutate in place for ranking)
+DATA.sort((a,b) => (b[COL.AKUISISI]||0) - (a[COL.AKUISISI]||0));
+
+// Assign global rank (competition ranking)
+let _prevVal = null, _prevRank = 0;
+DATA.forEach((r, i) => {
+  const v = r[COL.AKUISISI] || 0;
+  if(v !== _prevVal){ _prevRank = i + 1; _prevVal = v; }
+  r._rank = _prevRank;
+});
+
+const totalPegawai = DATA.length;
+const eligibleList = DATA.filter(r => r[COL.AREA] === 'Y');
+document.getElementById('total-pegawai-foot').textContent = totalPegawai.toLocaleString('id-ID') + ' total data pegawai';
+document.getElementById('eligible-foot').textContent = eligibleList.length.toLocaleString('id-ID') + ' berhak akses';
+
+const nipIndex = new Map();
+DATA.forEach((row,i) => nipIndex.set(String(row[COL.NIP]), i));
+
+let currentUser = null;
+let filteredRows = [...DATA];
+let currentPage = 1;
+const PAGE_SIZE = 25;
+
+function fmtNum(v){
+  if(v === null || v === undefined || v === '') return '-';
+  if(typeof v === 'number'){
+    if(Number.isInteger(v)) return v.toLocaleString('id-ID');
+    return v.toLocaleString('id-ID',{maximumFractionDigits:2});
+  }
+  return v;
+}
+function fmtPct(v){
+  if(v === null || v === undefined) return '-';
+  return (v*100).toLocaleString('id-ID',{maximumFractionDigits:1})+'%';
+}
+
+// ===== LOGIN =====
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.getElementById('nip-input').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  const val = document.getElementById('nip-input').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.classList.remove('show');
+  if(!val){ showErr('Masukkan NIP terlebih dahulu.'); return; }
+  const idx = nipIndex.get(val);
+  if(idx===undefined){ showErr('NIP tidak ditemukan dalam data pegawai.'); return; }
+  const row = DATA[idx];
+  if(row[COL.AREA]!=='Y'){ showErr('NIP terdaftar, namun tidak memiliki akses pada cakupan area ini.'); return; }
+  currentUser = row;
+  enterApp();
+}
+function showErr(msg){
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function enterApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('cur-nip-pill').textContent = currentUser[COL.NIP]+' · '+currentUser[COL.NAMA];
+  // header config
+  document.getElementById('hdr-tanggal').textContent  = CONFIG.TANGGAL;
+  document.getElementById('hdr-periode').textContent  = CONFIG.PERIODE;
+  document.getElementById('hdr-update').textContent   = CONFIG.LAST_UPDATE;
+  renderStats();
+  renderPodium();
+  applyFilters();
+}
+
+// ===== LOGOUT CONFIRM =====
+document.getElementById('logout-btn').addEventListener('click', ()=>{
+  document.getElementById('confirm-overlay').classList.add('show');
+});
+document.getElementById('confirm-cancel').addEventListener('click', ()=>{
+  document.getElementById('confirm-overlay').classList.remove('show');
+});
+document.getElementById('confirm-ok').addEventListener('click', ()=>{
+  document.getElementById('confirm-overlay').classList.remove('show');
+  currentUser = null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('nip-input').value='';
+});
+document.getElementById('confirm-overlay').addEventListener('click', e=>{
+  if(e.target.id==='confirm-overlay') document.getElementById('confirm-overlay').classList.remove('show');
+});
+
+// ===== STATS =====
+function renderStats(){
+  const totalAkuisisi = DATA.reduce((s,r)=>s+(r[COL.AKUISISI]||0),0);
+  const totalSaldo    = DATA.reduce((s,r)=>s+(r[COL.SALDO]||0),0);
+  const avgRata = DATA.length ? DATA.reduce((s,r)=>s+(r[COL.RATA]||0),0)/DATA.length : 0;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total Pegawai</div><div class="stat-value">${totalPegawai.toLocaleString('id-ID')}</div></div>
+    <div class="stat-card"><div class="stat-label">Region Aktif</div><div class="stat-value">${DATA.filter(r=>r[COL.REGION]==='Y').length.toLocaleString('id-ID')}</div></div>
+    <div class="stat-card"><div class="stat-label">Area Aktif</div><div class="stat-value">${eligibleList.length.toLocaleString('id-ID')}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Akuisisi</div><div class="stat-value gold">${totalAkuisisi.toLocaleString('id-ID')}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Saldo Tabungan (jt)</div><div class="stat-value">${fmtNum(totalSaldo)}</div></div>
+    <div class="stat-card"><div class="stat-label">Rata-rata Saldo / Pegawai (jt)</div><div class="stat-value">${fmtNum(Math.round(avgRata*100)/100)}</div></div>
+  `;
+}
+
+// ===== PODIUM =====
+let podiumScope = 'all';
+function getPodiumList(scope){
+  if(scope==='region') return DATA.filter(r=>r[COL.REGION]==='Y');
+  if(scope==='area')   return DATA.filter(r=>r[COL.AREA]==='Y');
+  return DATA;
+}
+function renderPodium(){
+  const list  = getPodiumList(podiumScope);
+  const top3  = list.filter(r=>(r[COL.AKUISISI]||0)>0).slice(0,3); // already sorted
+  const grid  = document.getElementById('podium-grid');
+  const medals = ['🥇','🥈','🥉'];
+  if(!top3.length){
+    grid.innerHTML=`<div class="podium-empty">Belum ada data akuisisi pada cakupan ini.</div>`;
+    return;
+  }
+  grid.innerHTML = top3.map((r,i)=>`
+    <div class="podium-card rank-${i+1}" data-nip="${r[COL.NIP]}">
+      <div class="podium-top">
+        <div class="podium-medal">${medals[i]}</div>
+        <div>
+          <div class="podium-name">${r[COL.NAMA]}</div>
+          <div class="podium-nip">NIP ${r[COL.NIP]}</div>
+        </div>
+      </div>
+      <div class="podium-unit">${r[COL.UNIT]||'Unit tidak tercatat'}</div>
+      <div class="podium-metrics">
+        <div class="podium-metric">
+          <div class="podium-metric-label">CIF Akuisisi</div>
+          <div class="podium-metric-value gold">${fmtNum(r[COL.AKUISISI])}</div>
+        </div>
+        <div class="podium-metric">
+          <div class="podium-metric-label">Saldo (jt)</div>
+          <div class="podium-metric-value">${fmtNum(r[COL.SALDO])}</div>
+        </div>
+        <div class="podium-metric">
+          <div class="podium-metric-label">Avg Saldo (jt)</div>
+          <div class="podium-metric-value">${fmtNum(r[COL.RATA])}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.podium-card').forEach(c=>{
+    c.addEventListener('click',()=>openDetail(c.dataset.nip));
+  });
+}
+document.getElementById('podium-tabs').addEventListener('click',e=>{
+  const btn=e.target.closest('.podium-tab');
+  if(!btn) return;
+  document.querySelectorAll('.podium-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  podiumScope=btn.dataset.scope;
+  renderPodium();
+});
+
+// ===== SEARCH & FILTER =====
+document.getElementById('search-nip').addEventListener('input', applyFilters);
+document.getElementById('search-unit').addEventListener('input', applyFilters);
+
+function applyFilters(){
+  const qNip  = document.getElementById('search-nip').value.trim().toLowerCase();
+  const qUnit = document.getElementById('search-unit').value.trim().toLowerCase();
+  filteredRows = DATA.filter(r=>{
+    const matchNip  = !qNip  || String(r[COL.NIP]).toLowerCase().includes(qNip) || String(r[COL.NAMA]).toLowerCase().includes(qNip);
+    const matchUnit = !qUnit || String(r[COL.UNIT]||'').toLowerCase().includes(qUnit);
+    return matchNip && matchUnit;
+  });
+  currentPage=1;
+  renderTable();
+}
+
+// ===== TABLE =====
+function renderTable(){
+  const tbody=document.getElementById('table-body');
+  const total=filteredRows.length;
+  document.getElementById('result-count').textContent=total.toLocaleString('id-ID')+' pegawai ditemukan';
+  if(!total){
+    tbody.innerHTML='';
+    document.getElementById('empty-state-wrap').innerHTML=`
+      <div class="empty-state"><div class="big">Tidak ada hasil</div><div>Coba kata kunci lain.</div></div>`;
+    document.getElementById('pagination').innerHTML='';
+    return;
+  }
+  document.getElementById('empty-state-wrap').innerHTML='';
+  const maxPage=Math.ceil(total/PAGE_SIZE);
+  if(currentPage>maxPage) currentPage=maxPage;
+  const start=(currentPage-1)*PAGE_SIZE;
+  const pageRows=filteredRows.slice(start, start+PAGE_SIZE);
+
+  tbody.innerHTML=pageRows.map(r=>{
+    const rkCls = r._rank===1?'r1':r._rank===2?'r2':r._rank===3?'r3':'';
+    return `<tr data-nip="${r[COL.NIP]}">
+      <td class="rank-cell ${rkCls}">${r._rank===1?'🥇':r._rank===2?'🥈':r._rank===3?'🥉':'#'+r._rank}</td>
+      <td class="nip-cell">${r[COL.NIP]}</td>
+      <td>${r[COL.NAMA]}</td>
+      <td>${r[COL.UNIT]||'-'}</td>
+      <td class="num">${fmtNum(r[COL.AKUISISI])}</td>
+      <td class="num">${fmtPct(r[COL.PCT_AKUISISI])}</td>
+      <td class="num">${fmtNum(r[COL.SALDO])}</td>
+      <td class="num">${fmtNum(r[COL.RATA])}</td>
+      <td><span class="tag ${r[COL.REGION]==='Y'?'tag-y':'tag-n'}">${r[COL.REGION]||'-'}</span></td>
+      <td><span class="tag ${r[COL.AREA]==='Y'?'tag-y':'tag-n'}">${r[COL.AREA]||'-'}</span></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr=>{
+    tr.addEventListener('click',()=>openDetail(tr.dataset.nip));
+  });
+  renderPagination(maxPage);
+}
+
+function renderPagination(maxPage){
+  document.getElementById('pagination').innerHTML=`
+    <button class="page-btn" id="pg-prev" ${currentPage<=1?'disabled':''}>‹</button>
+    <span class="page-info">Halaman ${currentPage} / ${maxPage}</span>
+    <button class="page-btn" id="pg-next" ${currentPage>=maxPage?'disabled':''}>›</button>
+  `;
+  document.getElementById('pg-prev').addEventListener('click',()=>{if(currentPage>1){currentPage--;renderTable();}});
+  document.getElementById('pg-next').addEventListener('click',()=>{if(currentPage<maxPage){currentPage++;renderTable();}});
+}
+
+// ===== RANKING =====
+function computeRank(list, nip){
+  const targetIdx = list.findIndex(r=>String(r[COL.NIP])===String(nip));
+  if(targetIdx===-1) return null;
+  const targetVal = list[targetIdx][COL.AKUISISI]||0;
+  let rank=1;
+  for(const r of list){ if((r[COL.AKUISISI]||0)>targetVal) rank++; else break; }
+  return {rank, total:list.length};
+}
+
+// ===== DETAIL MODAL =====
+document.getElementById('close-detail').addEventListener('click', closeDetail);
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeDetail();});
+function closeDetail(){ document.getElementById('overlay').classList.remove('show'); }
+
+function openDetail(nip){
+  const idx=nipIndex.get(String(nip));
+  if(idx===undefined) return;
+  const row=DATA[idx];
+
+  const regionList=DATA.filter(r=>r[COL.REGION]==='Y');
+  const areaList  =DATA.filter(r=>r[COL.AREA]==='Y');
+  const rOverall  =computeRank(DATA,nip);
+  const rRegion   =row[COL.REGION]==='Y'?computeRank(regionList,nip):null;
+  const rArea     =row[COL.AREA]==='Y'  ?computeRank(areaList,nip)  :null;
+
+  const akuisisi  = row[COL.AKUISISI]||0;
+  const avgSaldo  = row[COL.RATA]||0;
+  const isGoodAku = akuisisi>=3;
+  const isGoodAvg = avgSaldo>=48;
+
+  document.getElementById('detail-content').innerHTML=`
+    <div class="detail-head">
+      <div class="detail-eyebrow">PROFIL PEGAWAI</div>
+      <div class="detail-name">${row[COL.NAMA]}</div>
+      <div class="detail-unit">NIP ${row[COL.NIP]} · ${row[COL.UNIT]||'Unit tidak tercatat'}</div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-banner ${isGoodAku?'ok':'bad'}">
+        <div class="status-icon ${isGoodAku?'ok':'bad'}">${isGoodAku?'✓':'✕'}</div>
+        <div class="status-text">
+          <div class="t1">${akuisisi} CIF Akuisisi ${isGoodAku?'— tercapai':'— di bawah target'}</div>
+          <div class="t2">Target minimal 3 CIF akuisisi</div>
+        </div>
+      </div>
+      <div class="status-banner ${isGoodAvg?'ok':'bad'}">
+        <div class="status-icon ${isGoodAvg?'ok':'bad'}">${isGoodAvg?'✓':'✕'}</div>
+        <div class="status-text">
+          <div class="t1">Avg Saldo ${fmtNum(avgSaldo)} jt ${isGoodAvg?'— tercapai':'— di bawah target'}</div>
+          <div class="t2">Target minimal Average Balance 48 jt</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rank-section-title">Peringkat Akuisisi</div>
+    <div class="rank-rings">
+      ${ring(rOverall,'Nasional','#D4A24C')}
+      ${rRegion?ring(rRegion,'Region','#3FB68B'):ringEmpty('Region','Tidak termasuk region')}
+      ${rArea  ?ring(rArea,  'Area',  '#3FB68B'):ringEmpty('Area',  'Tidak termasuk area')}
+    </div>
+
+    <div class="rank-section-title">Detail Metrik</div>
+    <div class="metrics-grid">
+      <div class="metric-box"><div class="ml">#CIF Akuisisi</div><div class="mv">${fmtNum(row[COL.AKUISISI])}</div></div>
+      <div class="metric-box"><div class="ml">% Akuisisi (cabang)</div><div class="mv">${fmtPct(row[COL.PCT_AKUISISI])}</div></div>
+      <div class="metric-box"><div class="ml">#CIF Setor (≥100rb)</div><div class="mv">${fmtNum(row[COL.SETOR])}</div></div>
+      <div class="metric-box"><div class="ml">% Setor / Akuisisi</div><div class="mv">${fmtPct(row[COL.PCT_SETOR])}</div></div>
+      <div class="metric-box"><div class="ml">#CIF Sudah Transaksi</div><div class="mv">${fmtNum(row[COL.TRANSAKSI])}</div></div>
+      <div class="metric-box"><div class="ml">% Transaksi / Setor</div><div class="mv">${fmtPct(row[COL.PCT_TRANSAKSI])}</div></div>
+      <div class="metric-box"><div class="ml">Frek dari CIF Diakuisisi</div><div class="mv">${fmtNum(row[COL.FREK])}</div></div>
+      <div class="metric-box"><div class="ml">SV dari CIF (jt)</div><div class="mv">${fmtNum(row[COL.SV])}</div></div>
+      <div class="metric-box"><div class="ml">Saldo Tabungan (jt)</div><div class="mv">${fmtNum(row[COL.SALDO])}</div></div>
+      <div class="metric-box"><div class="ml">Rata-rata Saldo (jt)</div><div class="mv">${fmtNum(row[COL.RATA])}</div></div>
+      <div class="metric-box"><div class="ml">Cek Region</div><div class="mv">${row[COL.REGION]||'-'}</div></div>
+      <div class="metric-box"><div class="ml">Cek Pegawai Area</div><div class="mv">${row[COL.AREA]||'-'}</div></div>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('show');
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.ring-fg').forEach(el=>{
+      const pct=parseFloat(el.dataset.pct), r=38, circ=2*Math.PI*r;
+      el.style.strokeDasharray=circ;
+      el.style.strokeDashoffset=circ-(pct/100)*circ;
+    });
+  });
+}
+
+function ring(rankObj, label, color){
+  if(!rankObj) return ringEmpty(label,'Tidak ada data');
+  const pct=100-((rankObj.rank-1)/Math.max(rankObj.total-1,1))*100;
+  const r=38, circ=2*Math.PI*r;
+  return `
+    <div class="rank-card">
+      <div class="ring-wrap">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <circle class="ring-bg" cx="44" cy="44" r="${r}"></circle>
+          <circle class="ring-fg" cx="44" cy="44" r="${r}" data-pct="${pct}"
+            style="stroke:${color};stroke-dasharray:${circ};stroke-dashoffset:${circ};"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-rank">#${rankObj.rank}</div>
+          <div class="ring-of">dari ${rankObj.total.toLocaleString('id-ID')}</div>
+        </div>
+      </div>
+      <div class="rank-card-label">${label}</div>
+      <div class="rank-card-pct">Top ${pct.toFixed(1)}%</div>
+    </div>`;
+}
+function ringEmpty(label, note){
+  return `
+    <div class="rank-card">
+      <div class="ring-wrap">
+        <svg width="88" height="88" viewBox="0 0 88 88">
+          <circle class="ring-bg" cx="44" cy="44" r="38"></circle>
+        </svg>
+        <div class="ring-center"><div class="ring-rank" style="color:var(--muted-dim)">—</div></div>
+      </div>
+      <div class="rank-card-label">${label}</div>
+      <div class="rank-card-pct" style="color:var(--muted-dim)">${note}</div>
+    </div>`;
+}
+</script>
+</body>
+</html>
