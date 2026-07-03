@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Tree Ponkel</title>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+<link rel="icon" type="image/x-icon" href="icon.png">
+<style>
+  :root{
+    --navy:#0A2F5C;
+    --navy-deep:#071E3D;
+    --gold:#F7B733;
+    --gold-deep:#E09B1F;
+    --card:#FFFFFF;
+    --ink:#0A2F5C;
+    --ink-soft:#5A6B85;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{margin:0;padding:0;min-height:100%;}
+
+  body{
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height:100vh;
+    color:var(--ink);
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding: 44px 18px 70px;
+  }
+
+  .bg{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    background-image:url('bg-mandiri.png');
+    background-size:cover;
+    background-position:center 30%;
+    filter:saturate(1.05);
+  }
+
+  .bg-overlay{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:
+      linear-gradient(180deg, rgba(7,30,61,0.55) 0%, rgba(7,30,61,0.78) 38%, rgba(7,30,61,0.93) 100%);
+  }
+
+  .page{
+    width:100%;
+    max-width:440px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .avatar-wrap{
+    position:relative;
+    width:100px;
+    height:100px;
+    margin-bottom:16px;
+  }
+
+  .avatar{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--gold), var(--gold-deep));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:34px;
+    font-weight:700;
+    color:var(--navy-deep);
+    box-shadow: 0 12px 32px -8px rgba(0,0,0,0.5);
+    border:4px solid #fff;
+  }
+
+  .status-dot{
+    position:absolute;
+    bottom:3px;
+    right:3px;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#3DDC84;
+    border:3px solid #fff;
+  }
+
+  h1{
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 6px;
+    color:#fff;
+    text-align:center;
+    letter-spacing:-0.01em;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  }
+
+  .bio{
+    font-size:14px;
+    color:rgba(255,255,255,0.85);
+    text-align:center;
+    margin:0 0 16px;
+    max-width:320px;
+    line-height:1.55;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--gold);
+    border-radius:999px;
+    padding:6px 16px;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--navy-deep);
+    box-shadow: 0 6px 18px -6px rgba(247,183,51,0.6);
+    margin-bottom:26px;
+  }
+
+  .badge svg{width:13px;height:13px;}
+
+  .socials{
+    display:flex;
+    gap:12px;
+    margin-bottom:28px;
+  }
+
+  .social-btn{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    border:1px solid rgba(255,255,255,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    text-decoration:none;
+    transition: transform .18s ease, background .18s ease, color .18s ease;
+  }
+
+  .social-btn:hover{
+    transform: translateY(-3px);
+    background:var(--gold);
+    color:var(--navy-deep);
+  }
+
+  .social-btn svg{width:19px;height:19px;}
+
+  .links{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:13px;
+  }
+
+  .link-card{
+    position:relative;
+    width:100%;
+    background:rgba(255,255,255,0.96);
+    border-radius:20px;
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    text-decoration:none;
+    color:var(--ink);
+    box-shadow: 0 10px 26px -10px rgba(0,0,0,0.45);
+    border:1px solid rgba(255,255,255,0.3);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    overflow:hidden;
+  }
+
+  .link-card::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:4px;
+    background:var(--gold);
+    opacity:0;
+    transition:opacity .18s ease;
+  }
+
+  .link-card:hover{
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 16px 34px -12px rgba(0,0,0,0.55);
+  }
+
+  .link-card:hover::before{opacity:1;}
+
+  .link-icon{
+    flex-shrink:0;
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(135deg, rgba(10,47,92,0.1), rgba(247,183,51,0.18));
+    color:var(--navy);
+  }
+
+  .link-icon svg{width:18px;height:18px;}
+
+  .link-text{flex:1;z-index:1;}
+
+  .link-title{font-weight:600;font-size:15px;margin:0;}
+
+  .link-sub{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;}
+
+  .link-arrow{
+    z-index:1;
+    color:var(--ink-soft);
+    transition: transform .18s ease, color .18s ease;
+  }
+
+  .link-card:hover .link-arrow{
+    transform: translateX(3px);
+    color:var(--gold-deep);
+  }
+
+  .link-arrow svg{width:17px;height:17px;}
+
+  .featured{
+    background: linear-gradient(135deg, var(--navy), var(--navy-deep));
+    color:#fff;
+    border:1px solid rgba(247,183,51,0.4);
+  }
+
+  .featured .link-sub{color:rgba(255,255,255,0.75);}
+  .featured .link-icon{background:rgba(247,183,51,0.22);color:var(--gold);}
+  .featured .link-arrow{color:rgba(255,255,255,0.75);}
+  .featured:hover .link-arrow{color:var(--gold);}
+  .featured::before{background:var(--gold);}
+
+  /* ---- Dropdown link card ---- */
+  .dropdown{
+    width:100%;
+    background:rgba(255,255,255,0.96);
+    border-radius:20px;
+    box-shadow: 0 10px 26px -10px rgba(0,0,0,0.45);
+    border:1px solid rgba(255,255,255,0.3);
+    overflow:hidden;
+  }
+
+  .dropdown-trigger{
+    all:unset;
+    box-sizing:border-box;
+    width:100%;
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+    color:var(--ink);
+  }
+
+  .dropdown-trigger .link-icon{
+    flex-shrink:0;
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(135deg, rgba(10,47,92,0.1), rgba(247,183,51,0.18));
+    color:var(--navy);
+  }
+
+  .dropdown-trigger .link-icon svg{width:18px;height:18px;}
+
+  .dropdown-trigger .link-text{flex:1;}
+
+  .dropdown-chevron{
+    color:var(--ink-soft);
+    transition: transform .25s ease, color .2s ease;
+    flex-shrink:0;
+  }
+
+  .dropdown-chevron svg{width:18px;height:18px;}
+
+  .dropdown.open .dropdown-chevron{
+    transform: rotate(180deg);
+    color:var(--gold-deep);
+  }
+
+  .dropdown-panel{
+    max-height:0;
+    overflow:hidden;
+    transition: max-height .32s ease;
+  }
+
+  .dropdown.open .dropdown-panel{
+    max-height:400px;
+  }
+
+  .dropdown-inner{
+    padding:2px 12px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    border-top:1px solid rgba(10,47,92,0.08);
+    margin-top:2px;
+    padding-top:10px;
+  }
+
+  .dropdown-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    text-decoration:none;
+    color:var(--ink);
+    padding:10px 10px;
+    border-radius:13px;
+    transition: background .16s ease, transform .16s ease;
+  }
+
+  .dropdown-item:hover{
+    background: rgba(10,47,92,0.06);
+    transform: translateX(2px);
+  }
+
+  .dropdown-item .dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--gold);
+    flex-shrink:0;
+  }
+
+  .dropdown-item span{
+    font-size:14px;
+    font-weight:500;
+  }
+
+  footer{
+    margin-top:34px;
+    font-size:12px;
+    color:rgba(255,255,255,0.7);
+    text-align:center;
+  }
+
+  footer span{color:var(--gold);}
+
+  @media (max-width:380px){
+    body{padding:32px 12px 50px;}
+    h1{font-size:20px;}
+    .link-card{padding:14px 15px;border-radius:18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-overlay"></div>
+
+<div class="page">
+
+  <div class="avatar-wrap">
+    <div class="avatar">BM</div>
+    <div class="status-dot"></div>
+  </div>
+
+  <h1>Jkt Pondok Kelapa</h1>
+  <p class="bio">✨Kumpulan semua link penting ada di sini✨</p>
+
+  <div class="badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+    Verified
+  </div>
+
+  <div class="socials">
+    <a href="https://instagram.com/lifeatponkel/" class="social-btn" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+    </a>
+    <!-- <a href="#" class="social-btn" aria-label="TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48z"/></svg>
+    </a>
+    <a href="#" class="social-btn" aria-label="YouTube">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.6-.46-5.32a2.9 2.9 0 0 0-2-2C18.88 4.2 12 4.2 12 4.2s-6.88 0-8.54.48a2.9 2.9 0 0 0-2 2C1 8.4 1 12 1 12s0 3.6.46 5.32a2.9 2.9 0 0 0 2 2c1.66.48 8.54.48 8.54.48s6.88 0 8.54-.48a2.9 2.9 0 0 0 2-2C23 15.6 23 12 23 12z"/><polygon points="9.75,15.5 9.75,8.5 15.5,12" fill="#0A2F5C"/></svg>
+    </a>
+    <a href="#" class="social-btn" aria-label="Twitter/X">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 3H22l-7.2 8.23L23.3 21h-6.6l-5.17-6.76L5.6 21H2.5l7.7-8.8L1.8 3h6.76l4.67 6.18L18.9 3zm-1.16 16.2h1.83L7.35 4.7H5.4l12.34 14.5z"/></svg>
+    </a> -->
+  </div>
+
+  <div class="links">
+
+    <a href="../leading/index.php" class="link-card featured">
+      <div class="link-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/></svg>
+      </div>
+      <div class="link-text">
+        <p class="link-title">Data Leads for Leading Indicator</p>
+        <p class="link-sub">Cek data terbaru</p>
+      </div>
+      <div class="link-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <a href="../gmm/index.html" class="link-card">
+      <div class="link-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12h8M12 8v8"/></svg>
+      </div>
+      <div class="link-text">
+        <p class="link-title">Website GMM</p>
+        <p class="link-sub">Lihat ranking GMM per Area, Region, dan Nasional</p>
+      </div>
+      <div class="link-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <a href="https://bit.ly/166QrisAkuiusisiLivinMerchant" class="link-card">
+      <div class="link-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M8 12h8M12 8v8"/></svg>
+      </div>
+      <div class="link-text">
+        <p class="link-title">Data Transaction Banking Retail</p>
+        <p class="link-sub">Lihat data transaction banking retail</p>
+      </div>
+      <div class="link-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- <div class="dropdown" id="dropdown-lainnya">
+      <button class="dropdown-trigger" onclick="toggleDropdown('dropdown-lainnya')">
+          <div class="link-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+      </div>
+        <div class="link-text">
+          <p class="link-title">Kontak dan Kolaborasi</p>
+          <p class="link-sub">Chat Whatsapp untuk kerja sama</p>
+        </div>
+        <div class="dropdown-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </button>
+      <div class="dropdown-panel">
+        <div class="dropdown-inner">
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Rivaldy Naiborhu - Officer Retail Funding & Solution</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Leocadia Prima - Business Development Representative</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Machael Utomo - Officer Transaction Banking Retail</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Arisandi Pratama - PLK Transaction Banking Retail</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Tantri Larasati - Officer Wholesale Funding Transaction</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Digit Priyambodo - Officer Wholesale Funding Transaction</span></a>
+        
+      </div>
+    </div> -->
+
+    <a href="#" class="link-card">
+      <div class="link-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      </div>
+      <div class="link-text">
+        <p class="link-title">Booking Sesi Konsultasi - Coming Soon</p>
+        <p class="link-sub">Pilih jadwal yang cocok</p>
+      </div>
+      <div class="link-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- <div class="dropdown" id="dropdown-lainnya">
+      <button class="dropdown-trigger" onclick="toggleDropdown('dropdown-lainnya')">
+        <div class="link-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        </div>
+        <div class="link-text">
+          <p class="link-title">Link Lainnya</p>
+          <p class="link-sub">Lihat semua tautan tambahan</p>
+        </div>
+        <div class="dropdown-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </button>
+      <div class="dropdown-panel">
+        <div class="dropdown-inner">
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Katalog Layanan Lengkap</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Panduan & FAQ</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Testimoni Klien</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Newsletter</span></a>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="dropdown" id="dropdown-lainnya">
+      <button class="dropdown-trigger" onclick="toggleDropdown('dropdown-lainnya')">
+         <div class="link-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H5.17L4 17.17V4z"/></svg>
+      </div>
+        <div class="link-text">
+          <p class="link-title">Grup Diskusi</p>
+          <p class="link-sub">Gabung dan ngobrol bareng di grup penting</p>
+        </div>
+        <div class="dropdown-chevron">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </button>
+      <div class="dropdown-panel">
+        <div class="dropdown-inner">
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>BM SM and Team Area Cabang - All Officer & PLK (exc Kriya)</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Credit Card PALAPa - Officer & Sales Berkewenangan</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Consumer Loan Area Ponkel - Officer & Pegawai Berwenang</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Pelaporan Supervisor - All Officer & PLK (exc Kriya)</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Kawasan Ponkel - All Officer & PLK (exc Kriya)</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>BFTM BSTSpv PALAPA - All BFTM/Spv</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>MTF_Area PONKEL - All BFTM/</span></a>
+          <a href="#" class="dropdown-item"><span class="dot"></span><span>Kopra & Bill Reminder - All Pegawai Berkepentingan</span></a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Made with <span>♥</span> — © 2026 Rivaldy Naiborhu - ATF Ponkel</footer>
+
+</div>
+
+<script>
+  function toggleDropdown(id){
+    document.getElementById(id).classList.toggle('open');
+  }
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4068556181434693"
+     crossorigin="anonymous"></script>
+
+</body>
+</html>
